@@ -1,16 +1,39 @@
-# ente_assignment
+# Photos App
 
-A new Flutter project.
+A simple and intuitive photos app built with Flutter. This application allows users to view, organize, and manage their photo collections seamlessly.
+
+## Features
+
+- Browse photos in a grid or list view
+- View photos in full-screen mode
+- Responsive and clean user interface
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
 
-A few resources to get you started if this is your first Flutter project:
+- [Flutter](https://flutter.dev/docs/get-started/install) installed on your machine
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Installation
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Clone the repository:
+    ```bash
+    git clone <repository-url>
+    cd <project-directory>
+    ```
+2. Get the dependencies:
+    ```bash
+    flutter pub get
+    ```
+3. Run the app:
+    ```bash
+    flutter run
+    ```
+
+## Contributing
+
+Contributions are welcome! Please open issues or submit pull requests for any improvements.
+
+## License
+
+This project is licensed under the MIT License.
