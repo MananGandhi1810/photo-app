@@ -28,53 +28,58 @@ class PhotoTile extends StatelessWidget {
             snapshot.hasData &&
             snapshot.data != null) {
           return OpenContainer(
-            openBuilder: (context, action) => PhotoViewPage(model: model),
-            closedBuilder:(
-              BuildContext context,
-              Function openContainer,
-            ) => Stack(
-              children: [
-                GestureDetector(
-                  onLongPress: () => select(),
-                  onTap: () {
-                    if (model.isSelected) {
-                      deselect();
-                    } else {
-                      openContainer();
-                    }
-                  },
-                  child: Image.file(
-                    snapshot.data!,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                if (model.isSelected)
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: Icon(
-                      Icons.check_circle,
-                      color: Colors.white.withAlpha(200),
-                      size: 24,
-                    ),
-                  ),
-                if (isAnySelected && !model.isSelected)
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.white.withAlpha(200),
-                      size: 24,
-                    ),
-                  ),
-              ],
+            closedElevation: 0,
+            closedShape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0),
             ),
+            openBuilder: (context, action) => PhotoViewPage(model: model),
+            closedBuilder: (BuildContext context, Function openContainer) =>
+                Stack(
+                  children: [
+                    GestureDetector(
+                      onLongPress: () => select(),
+                      onTap: () {
+                        if (model.isSelected) {
+                          deselect();
+                        } else if (isAnySelected) {
+                          select();
+                        } else {
+                          openContainer();
+                        }
+                      },
+                      child: Image.file(
+                        snapshot.data!,
+                        fit: BoxFit.fill,
+                        alignment: Alignment.center,
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                    ),
+                    if (model.isSelected)
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Icon(
+                          Icons.check_circle,
+                          color: Colors.white.withAlpha(200),
+                          size: 24,
+                        ),
+                      ),
+                    if (isAnySelected && !model.isSelected)
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.white.withAlpha(200),
+                          size: 24,
+                        ),
+                      ),
+                  ],
+                ),
           );
         } else {
-          return Container(
-            color: Colors.grey[300],
-          );
+          return Container(color: Colors.grey[300]);
         }
       },
     );

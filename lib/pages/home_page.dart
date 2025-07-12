@@ -61,7 +61,9 @@ class _HomePageState extends State<HomePage> {
           key = todayKey;
         } else if (diff.inDays == 1) {
           key = yesterdayKey;
-        } else if (diff.inDays <= now.weekday && diff.inDays <= 6 && diff.inDays > 1) {
+        } else if (diff.inDays <= now.weekday &&
+            diff.inDays <= 6 &&
+            diff.inDays > 1) {
           key = weekdayRangeKey;
         } else {
           key = _formatFullDate(date);
@@ -73,7 +75,11 @@ class _HomePageState extends State<HomePage> {
     for (var k in [todayKey, yesterdayKey, weekdayRangeKey]) {
       if (grouped.containsKey(k)) ordered[k] = grouped[k]!;
     }
-    final otherKeys = grouped.keys.where((k) => k != todayKey && k != yesterdayKey && k != weekdayRangeKey).toList();
+    final otherKeys = grouped.keys
+        .where(
+          (k) => k != todayKey && k != yesterdayKey && k != weekdayRangeKey,
+        )
+        .toList();
     otherKeys.sort((a, b) {
       final aDate = _parseFullDate(a);
       final bDate = _parseFullDate(b);
@@ -106,23 +112,51 @@ class _HomePageState extends State<HomePage> {
 
   String _weekdayName(int weekday) {
     const weekdays = [
-      '', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+      '',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
     ];
     return weekdays[weekday];
   }
 
   String _monthName(int month) {
     const months = [
-      '', 'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      '',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return months[month];
   }
 
   int _monthNumber(String name) {
     const months = {
-      'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5, 'June': 6,
-      'July': 7, 'August': 8, 'September': 9, 'October': 10, 'November': 11, 'December': 12
+      'January': 1,
+      'February': 2,
+      'March': 3,
+      'April': 4,
+      'May': 5,
+      'June': 6,
+      'July': 7,
+      'August': 8,
+      'September': 9,
+      'October': 10,
+      'November': 11,
+      'December': 12,
     };
     return months[name] ?? 0;
   }
@@ -141,48 +175,254 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: assetModels.isNotEmpty
-          ? ListView(
-              children: assetsGroupedByDay.entries.map((entry) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Text(
-                        entry.key,
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ? SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ListView(
+                    children: assetsGroupedByDay.entries.map((entry) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            child: Text(
+                              entry.key,
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          GridView.builder(
+                            key: ValueKey(entry.key),
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  crossAxisSpacing: 2,
+                                  mainAxisSpacing: 2,
+                                ),
+                            itemCount: entry.value.length,
+                            itemBuilder: (context, index) {
+                              final model = entry.value[index];
+                              return PhotoTile(
+                                key: ValueKey(model.entity?.id),
+                                model: model,
+                                select: () {
+                                  model.toggleSelection();
+                                  setState(() {});
+                                },
+                                deselect: () {
+                                  model.toggleSelection();
+                                  setState(() {});
+                                },
+                                isAnySelected: assetModels.any(
+                                  (m) => m.isSelected,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                  if (assetModels.any((m) => m.isSelected))
+                    AnimatedSlide(
+                      duration: Duration(milliseconds: 300),
+                      offset: Offset(0, 0),
+                      curve: Curves.easeOut,
+                      child: _SelectionBottomSheet(
+                        selectedCount: assetModels
+                            .where((m) => m.isSelected)
+                            .length,
+                        onSelectAll: () {
+                          setState(() {
+                            for (var m in assetModels) {
+                              m.isSelected = true;
+                            }
+                          });
+                        },
+                        onDeselectAll: () {
+                          setState(() {
+                            for (var m in assetModels) {
+                              m.isSelected = false;
+                            }
+                          });
+                        },
+                        onDelete: () {
+                          setState(() {
+                            assetModels.removeWhere((m) => m.isSelected);
+                          });
+                        },
                       ),
                     ),
-                    GridView.builder(
-                      key: ValueKey(entry.key),
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                      ),
-                      itemCount: entry.value.length,
-                      itemBuilder: (context, index) {
-                        final model = entry.value[index];
-                        return PhotoTile(
-                          key: ValueKey(model.entity?.id),
-                          model: model,
-                          select: () {
-                            model.toggleSelection();
-                            setState(() {});
-                          },
-                          deselect: () {
-                            model.toggleSelection();
-                            setState(() {});
-                          },
-                          isAnySelected: assetModels.any((m) => m.isSelected),
-                        );
-                      },
+                ],
+              ),
+            )
+          : Center(
+              child: permissionDenied
+                  ? Text("Permission Denied")
+                  : CircularProgressIndicator(),
+            ),
+    );
+  }
+}
+
+class _SelectionBottomSheet extends StatelessWidget {
+  final int selectedCount;
+  final VoidCallback onSelectAll;
+  final VoidCallback onDeselectAll;
+  final VoidCallback onDelete;
+  // Add more callbacks as needed
+
+  const _SelectionBottomSheet({
+    required this.selectedCount,
+    required this.onSelectAll,
+    required this.onDeselectAll,
+    required this.onDelete,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Container(
+        width: double.infinity,
+        constraints: BoxConstraints(
+          minHeight: 0,
+          maxHeight: 320,
+        ),
+        margin: EdgeInsets.all(8),
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 16,
+              offset: Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  onPressed: onSelectAll,
+                  icon: Icon(Icons.done_all, color: Color(0xFF7C3AED)),
+                  label: Text('Select All', style: TextStyle(color: Color(0xFF7C3AED), fontWeight: FontWeight.w600)),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    '$selectedCount selected',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.close, color: Colors.black87),
+                  onPressed: onDeselectAll,
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 24,
+              runSpacing: 16,
+              children: [
+                _ActionButton(icon: Icons.photo_album, label: 'Add to album'),
+                _ActionButton(icon: Icons.favorite_border, label: 'Favourite'),
+                _ActionButton(icon: Icons.download, label: 'Download'),
+                _ActionButton(icon: Icons.visibility_off, label: 'Hide'),
+                _ActionButton(icon: Icons.archive, label: 'Archive'),
+                _ActionButton(icon: Icons.edit, label: 'Edit time'),
+                _ActionButton(
+                  icon: Icons.delete,
+                  label: 'Delete',
+                  color: Colors.red,
+                  onTap: onDelete,
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Center(
+              child: Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF4ADE80), Color(0xFF22D3EE)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 12,
+                      offset: Offset(0, 2),
                     ),
                   ],
-                );
-              }).toList(),
-            )
-          : Center(child: Text("No Photos :(")),
+                ),
+                child: Icon(Icons.arrow_upward, color: Colors.white, size: 32),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color? color;
+  final VoidCallback? onTap;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    this.color,
+    this.onTap,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: color ?? Colors.grey[100],
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Icon(icon, color: color ?? Colors.black, size: 32),
+          ),
+          SizedBox(height: 6),
+          Text(label, style: TextStyle(fontSize: 14)),
+        ],
+      ),
     );
   }
 }

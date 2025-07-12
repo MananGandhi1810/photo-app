@@ -17,7 +17,11 @@ class PhotoViewPage extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.done &&
                 snapshot.hasData &&
                 snapshot.data != null) {
-              return Image.file(snapshot.data!);
+              return Image.file(
+                snapshot.data!,
+                alignment: Alignment.center,
+                fit: BoxFit.fill,
+              );
             } else {
               return CircularProgressIndicator();
             }
